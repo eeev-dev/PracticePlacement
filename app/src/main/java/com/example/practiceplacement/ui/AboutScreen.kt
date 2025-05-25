@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,10 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.practiceplacement.R
@@ -42,7 +45,9 @@ import com.example.practiceplacement.ui.navigation.BottomDrawer
 import com.example.practiceplacement.ui.tabs.CompanyTab
 import com.example.practiceplacement.ui.tabs.ReviewTab
 import com.example.practiceplacement.ui.theme.sansFont
+import com.example.practiceplacement.viewmodels.AboutViewModel
 import com.example.practiceplacement.viewmodels.PracticeViewModel
+import com.example.practiceplacement.viewmodels.SelectionViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -52,8 +57,10 @@ import retrofit2.Response
 @Composable
 fun AboutScreen(
     navController: NavController,
-    id: Int
+    id: Int,
+    viewModel: AboutViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val icons = listOf(
         Pair(R.drawable.info, "Информация"),
         Pair(R.drawable.star, "Отзывы")
@@ -65,43 +72,44 @@ fun AboutScreen(
     var dialogState by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    // val places by viewModel.places.collectAsState()
-    val places = listOf(
-        Place(0, "Айыл банк", "Web-программирование", 4),
-        Place(1, "Оптима банк", "Мобильная разработка", 7)
-    )
-    val place = places[id]
+    viewModel.getPlace(id)
+    val place = viewModel.place
 
-    Box(modifier = Modifier.background(Color.White)) {
-        if (dialogState) {
-            SendConfirmation(
-                onClose = { dialogState = false },
-                onClick = {
-                },
-                content = { }
-            )
-        }
-        Column(modifier = Modifier.align(Alignment.TopStart)) {
-            Header(place.title) {
-                dialogState = !dialogState
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(icons.size - 1)
+    Box(Modifier.fillMaxSize()) {
+        if (place != null) {
+            Box(modifier = Modifier.background(Color.White)) {
+                if (dialogState) {
+                    SendConfirmation(
+                        onClose = { dialogState = false },
+                        onClick = {
+                            viewModel.sendPlace(context, place.id)
+                            dialogState = false
+                            viewModel.refreshStatus()
+                            navController.navigate("practice_screen")
+                        },
+                        content = { Text(text = "Вы уверены?", fontSize = 20.sp, fontFamily = sansFont) }
+                    )
+                }
+                Column(modifier = Modifier.align(Alignment.TopStart)) {
+                    Header(place.title.toString()) { dialogState = !dialogState }
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) { page ->
+                        when (page) {
+                            0 -> CompanyTab(place)
+                            1 -> ReviewTab()
+                            else -> CompanyTab(place)
+                        }
+                    }
+                }
+                Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+                    BottomDrawer(icons, pagerState)
                 }
             }
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) { page ->
-                when (page) {
-                    0 -> CompanyTab(place)
-                    1 -> ReviewTab()
-                    else -> CompanyTab(place)
-                }
-            }
-        }
-        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-            BottomDrawer(icons, pagerState)
+        } else {
+            Box(Modifier.align(Alignment.Center)) { CircularProgressIndicator() }
         }
     }
 }
@@ -127,9 +135,8 @@ fun Header(
                 fontFamily = sansFont,
                 color = Color.White,
                 fontSize = 36.sp,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically).weight(1f)
             )
-            Spacer(modifier = Modifier.weight(1f))
             Icon(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)

@@ -23,7 +23,7 @@ fun CompanyTab(place: Place) {
             .padding(start = 12.dp, end = 12.dp)
     ) {
         item {
-            ProgressBar(6, 4)
+            ProgressBar(place.max_places, place.max_places - place.places)
         }
         item {
             Spacer(modifier = Modifier.height(6.dp).background(Color.Transparent))

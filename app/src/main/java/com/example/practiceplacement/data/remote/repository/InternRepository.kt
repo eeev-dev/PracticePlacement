@@ -1,6 +1,7 @@
 package com.example.practiceplacement.data.remote.repository
 
 import com.example.practiceplacement.data.remote.api.InternApi
+import com.example.practiceplacement.data.remote.api.InternPlaceRequest
 import com.example.practiceplacement.data.remote.api.InternRequest
 import com.example.practiceplacement.data.remote.api.InternResponse
 
@@ -25,6 +26,19 @@ class InternRepository(private val internApi: InternApi) {
                 }
             } else {
                 Result.failure(Exception("Ошибка сервера: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun sendIntern(internId: Int, placeId: Int): Result<InternResponse> {
+        return try {
+            val response = internApi.postIntern(InternPlaceRequest(internId, placeId))
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Ошибка: ${response.code()} — ${response.message()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

@@ -34,12 +34,14 @@ fun CompanyItem(
                 fontFamily = sansFont,
                 fontSize = 32.sp
             )
-            Text(
-                text = place.occupation,
-                fontFamily = sansFont,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+            if (place.occupation.isNotEmpty()) {
+                Text(
+                    text = place.occupation,
+                    fontFamily = sansFont,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
             Text(
                 text = "Мест: ${place.places}",
                 fontFamily = sansFont,

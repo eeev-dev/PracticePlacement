@@ -14,25 +14,23 @@ data class InternResponse(
     val success: Boolean,
     val status: String?,
     val deadline: String?,
+    val place: String?,
     val message: String? = null
 )
 
 data class InternRequest(val intern_id: Int)
 
+data class InternPlaceRequest(
+    val intern_id: Int,
+    val place_id: Int
+)
+
 interface InternApi {
+    @POST("/intern/post")
+    suspend fun postIntern(@Body request: InternPlaceRequest): Response<InternResponse>
+
     @POST("/intern/get")
     suspend fun getIntern(
         @Body request: InternRequest
     ): Response<InternResponse>
-
-    @FormUrlEncoded
-    @POST("/intern/create")
-    fun createIntern(
-        @Field("name") name: String?,
-        @Field("group") group: String?,
-        @Field("year") year: Int?,
-        @Field("head_teacher") head_teacher: String?,
-        @Field("score") score: Int?,
-        @Field("place") place: String?
-    ): Call<Void?>?
 }

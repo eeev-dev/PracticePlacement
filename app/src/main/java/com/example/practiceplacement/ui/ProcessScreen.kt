@@ -36,7 +36,8 @@ import com.example.practiceplacement.utils.openFile
 @Composable
 fun ProcessScreen(
     navController: NavController,
-    status: String?
+    status: String?,
+    company: String
 ) {
     val context = LocalContext.current
     var dialogState by remember { mutableStateOf(false) }
@@ -76,7 +77,7 @@ fun ProcessScreen(
             Spacer(Modifier.height(12.dp))
             Subject(
                 "Предприятие",
-                "Айыл Банк",
+                company,
                 R.drawable.company,
                 status
             )

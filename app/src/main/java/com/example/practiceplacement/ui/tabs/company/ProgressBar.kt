@@ -65,7 +65,13 @@ fun ProgressBar(
                     )
             ) {
                 val density = LocalDensity.current
-                val progressWidth = with(density) { (boxWidth / max * current).toDp() }
+                val progressWidth = with(density) {
+                    if (current != 0) {
+                        (boxWidth / max * current).toDp()
+                    } else {
+                        0.toDp()
+                    }
+                }
                 Box(
                     modifier = Modifier
                         .height(100.dp)

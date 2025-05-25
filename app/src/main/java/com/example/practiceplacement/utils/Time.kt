@@ -18,3 +18,9 @@ fun parseDeadlineToLocalDate(deadlineStr: String): LocalDate {
     val zonedDateTime = ZonedDateTime.parse(deadlineStr, formatter)
     return zonedDateTime.toLocalDate()
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatDateRussian(date: LocalDate): String {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("ru"))
+    return date.format(formatter) + " год"
+}
