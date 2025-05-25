@@ -1,0 +1,104 @@
+package com.example.practiceplacement.ui
+
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.practiceplacement.R
+import com.example.practiceplacement.ui.components.BlueRectangularButton
+import com.example.practiceplacement.ui.theme.sansFont
+import com.example.practiceplacement.viewmodels.LoginViewModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import com.example.practiceplacement.ui.components.Message
+
+@Composable
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = viewModel()
+) {
+    val loginResult = viewModel.loginResult
+    var studentId by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Message(viewModel.message) { viewModel.message = "" }
+            Text("Вход", fontSize = 28.sp, fontWeight = FontWeight.Bold, fontFamily = sansFont)
+
+            OutlinedTextField(
+                value = studentId,
+                onValueChange = {
+                    studentId = it
+                    viewModel.onStudentIdChange(it)
+                },
+                label = { Text("Логин") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = colorResource(R.color.blue),
+                    unfocusedBorderColor = colorResource(R.color.inactive_tab),
+                    focusedLabelColor = colorResource(R.color.blue),
+                    unfocusedLabelColor = colorResource(R.color.inactive_tab),
+                    cursorColor = colorResource(R.color.blue)
+                )
+            )
+
+            BlueRectangularButton("Войти") {
+                viewModel.onLoginClick(context)
+            }
+
+            when (loginResult) {
+                is LoginViewModel.LoginResult.Success -> {
+                    LaunchedEffect(Unit) {
+                        navController.navigate("practice_screen")
+                    }
+                }
+
+                is LoginViewModel.LoginResult.Error -> {
+                    Text(
+                        text = (loginResult as LoginViewModel.LoginResult.Error).message,
+                        color = Color.Red
+                    )
+                }
+
+                null -> {}
+            }
+
+        }
+    }
+}
