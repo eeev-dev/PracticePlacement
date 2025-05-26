@@ -1,30 +1,30 @@
 package com.example.practiceplacement.viewmodels
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.practiceplacement.data.remote.ApiClient.internApi
 import com.example.practiceplacement.data.remote.api.InternResponse
+import com.example.practiceplacement.data.remote.api.ReviewResponse
+import com.example.practiceplacement.data.remote.models.Review
 import com.example.practiceplacement.data.remote.repository.InternRepository
-import com.example.practiceplacement.utils.DataStoreManager
+import com.example.practiceplacement.data.remote.repository.ReviewRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PracticeViewModel @Inject constructor(
+class ProcessViewModel @Inject constructor(
     private val repository: InternRepository,
-    @ApplicationContext private val appContext: Context
+    private val reviewRepository: ReviewRepository
 ) : ViewModel() {
-
-    private val dataStoreManager = DataStoreManager(appContext)
 
     var internInfo by mutableStateOf<InternResponse?>(null)
         private set
@@ -41,32 +41,18 @@ class PracticeViewModel @Inject constructor(
         viewModelScope.launch {
             isRefreshing.value = true
             clearData()
-            loadIntern(id)
+            loadIntern(id, context)
             isRefreshing.value = false
         }
     }
 
-    fun loadIntern(internId: Int) {
-        if (internId == -1) {
-            message = "Пользователь не найден"
-            return
-        }
-
-        viewModelScope.launch {
-            val savedStatus = dataStoreManager.getStatus()
-
-            if (savedStatus == "Подтвержден") {
-                internInfo = InternResponse(
-                    status = savedStatus,
-                    place = dataStoreManager.getPlace()
-                )
-            } else {
+    fun loadIntern(internId: Int, context: Context) {
+        if (internId != -1) {
+            viewModelScope.launch {
                 val result = repository.getIntern(internId)
                 result.onSuccess {
                     internInfo = it
-                    if (it.status == "Подтвержден") {
-                        dataStoreManager.saveAfterConfirm(it.place.toString())
-                    }
+                    println(internInfo?.place_id)
                     errorMessage = null
                 }.onFailure {
                     message = it.message.toString()
@@ -74,11 +60,36 @@ class PracticeViewModel @Inject constructor(
                 }
             }
         }
+        else message = "Пользователь не найден"
     }
 
     fun clearData() {
         internInfo = null
         repository.clearCache()
     }
-}
 
+    private fun saveUserDataToPrefs(context: Context, place: String?) {
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        sharedPrefs.edit()
+            .putString("place", place)
+            .apply()
+    }
+
+    private val _resultReview = MutableLiveData<Result<ReviewResponse>>()
+    val resultReview: LiveData<Result<ReviewResponse>> = _resultReview
+
+    fun sendReview(rating: Int, text: String, date: String, placeId: Int) {
+        viewModelScope.launch {
+            val res = reviewRepository.sendReview(rating, text, date, placeId)
+            _resultReview.value = res
+            res.onSuccess {
+                val message = it.message
+                Log.d("ReviewVM", "Ответ сервера: $message")
+            }
+            res.onFailure {
+                val message = it.message
+                Log.d("ReviewVM", "Ответ сервера: $message")
+            }
+        }
+    }
+}

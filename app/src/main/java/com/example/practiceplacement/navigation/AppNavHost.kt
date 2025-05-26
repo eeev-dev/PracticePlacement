@@ -12,6 +12,8 @@ import com.example.practiceplacement.ui.AboutScreen
 import com.example.practiceplacement.ui.LetterScreen
 import com.example.practiceplacement.ui.LoginScreen
 import com.example.practiceplacement.ui.PracticeScreen
+import com.example.practiceplacement.ui.ProcessScreen
+import com.example.practiceplacement.ui.SelectionScreen
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -22,6 +24,8 @@ fun AppNavHost(
     NavHost(navController = navController, startDestination = "practice_screen") {
         composable("login_screen") { LoginScreen(navController) }
         composable("letter_screen") { LetterScreen(navController) }
+        composable("process_screen") { ProcessScreen(navController) }
+        composable("selection_screen") { SelectionScreen(navController) }
         composable("practice_screen") { PracticeScreen(navController, ) }
         composable(
             "about_screen/{placeId}",

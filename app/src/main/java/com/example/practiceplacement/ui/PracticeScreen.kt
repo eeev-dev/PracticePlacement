@@ -48,7 +48,7 @@ fun PracticeScreen(
     val errorMessage = viewModel.errorMessage
 
     LaunchedEffect(id) {
-        viewModel.loadIntern(id, context)
+        viewModel.loadIntern(id)
     }
 
     val isRefreshing by viewModel.isRefreshing
@@ -56,7 +56,7 @@ fun PracticeScreen(
     val isLogin = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         .getBoolean("isLogin", false)
 
-    Appbar(navController, "Практика") {
+    Appbar(navController, "Практика", onExit = { viewModel.clearData() }) {
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing),
             onRefresh = { viewModel.refresh(context) }
@@ -66,7 +66,7 @@ fun PracticeScreen(
             ) {
                 item {
                     if (!isLogin) {
-                        LoginScreen(navController)
+                        navController.navigate("login_screen")
                     } else {
                         if (internInfo == null) {
                             Box(Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
@@ -77,13 +77,8 @@ fun PracticeScreen(
                             val deadline = parseDeadlineToLocalDate(deadlineString.toString())
                             val status = internInfo.status
                             Box(Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
-                                if (isDatePassed(deadline) || status == "Ожидает подтверждения" || status == "Подтвержден")
-                                    ProcessScreen(
-                                        navController,
-                                        status,
-                                        internInfo.place.toString()
-                                    )
-                                else SelectionScreen(navController, deadline)
+                                if (isDatePassed(deadline) || status == "Ожидает подтверждения" || status == "Подтвержден") navController.navigate("process_screen")
+                                else navController.navigate("selection_screen")
                             }
                         }
                     }

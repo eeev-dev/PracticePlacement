@@ -1,11 +1,40 @@
 package com.example.practiceplacement.data.remote.repository
 
+import android.content.Context
 import com.example.practiceplacement.data.remote.api.InternApi
 import com.example.practiceplacement.data.remote.api.InternPlaceRequest
 import com.example.practiceplacement.data.remote.api.InternRequest
 import com.example.practiceplacement.data.remote.api.InternResponse
+import com.example.practiceplacement.utils.DataStoreManager
+import com.example.practiceplacement.utils.PrefKeys
+import com.example.practiceplacement.utils.dataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class InternRepository(private val internApi: InternApi) {
+class InternRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val internApi: InternApi
+) {
+    private val dataStore = DataStoreManager(context)
+
+    suspend fun getStatus(): String {
+        return dataStore.getStatus()
+    }
+
+    suspend fun getId(): Int  {
+        val prefs = context.dataStore.data.first()
+        val idString = prefs[PrefKeys.ID] ?: return -1
+        return idString.toIntOrNull() ?: -1
+    }
+
+    suspend fun getPlace(): String {
+        return dataStore.getPlace()
+    }
+
+    suspend fun getTeacher(): String {
+        return dataStore.getTeacher()
+    }
 
     private var cachedInternInfo: InternResponse? = null
 

@@ -3,7 +3,6 @@ package com.example.practiceplacement.data.remote.repository
 import com.example.practiceplacement.data.remote.ApiClient
 import com.example.practiceplacement.data.remote.api.CompanyApi
 import com.example.practiceplacement.data.remote.api.InternApi
-import com.example.practiceplacement.data.remote.api.InternRequest
 import com.example.practiceplacement.data.remote.api.InternResponse
 import com.example.practiceplacement.data.remote.models.Place
 import javax.inject.Inject

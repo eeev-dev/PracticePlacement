@@ -1,7 +1,6 @@
 package com.example.practiceplacement.ui
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,22 +36,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.practiceplacement.R
-import com.example.practiceplacement.data.remote.models.Place
+import com.example.practiceplacement.ui.components.BlueRectangularButton
 import com.example.practiceplacement.ui.components.SendConfirmation
 import com.example.practiceplacement.ui.navigation.BottomDrawer
 import com.example.practiceplacement.ui.tabs.CompanyTab
 import com.example.practiceplacement.ui.tabs.ReviewTab
 import com.example.practiceplacement.ui.theme.sansFont
 import com.example.practiceplacement.viewmodels.AboutViewModel
-import com.example.practiceplacement.viewmodels.PracticeViewModel
-import com.example.practiceplacement.viewmodels.SelectionViewModel
-import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -75,19 +68,36 @@ fun AboutScreen(
     viewModel.getPlace(id)
     val place = viewModel.place
 
+    val reviews by viewModel.reviews.collectAsState()
+
+    LaunchedEffect(place?.id) {
+        place?.let {
+            viewModel.getReviews(it.id)
+        }
+    }
+
     Box(Modifier.fillMaxSize()) {
         if (place != null) {
             Box(modifier = Modifier.background(Color.White)) {
                 if (dialogState) {
                     SendConfirmation(
                         onClose = { dialogState = false },
-                        onClick = {
-                            viewModel.sendPlace(context, place.id)
-                            dialogState = false
-                            viewModel.refreshStatus()
-                            navController.navigate("practice_screen")
-                        },
-                        content = { Text(text = "Вы уверены?", fontSize = 20.sp, fontFamily = sansFont) }
+                        content = {
+                            Column {
+                                Text(
+                                    text = "Вы уверены?",
+                                    fontSize = 20.sp,
+                                    fontFamily = sansFont
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                BlueRectangularButton("Подтвердить") {
+                                    viewModel.sendPlace(context, place.id)
+                                    dialogState = false
+                                    viewModel.refreshStatus()
+                                    navController.navigate("practice_screen")
+                                }
+                            }
+                        }
                     )
                 }
                 Column(modifier = Modifier.align(Alignment.TopStart)) {
@@ -99,7 +109,7 @@ fun AboutScreen(
                     ) { page ->
                         when (page) {
                             0 -> CompanyTab(place)
-                            1 -> ReviewTab()
+                            1 -> ReviewTab(reviews)
                             else -> CompanyTab(place)
                         }
                     }

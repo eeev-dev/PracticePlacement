@@ -2,6 +2,7 @@ package com.example.practiceplacement.ui
 
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,13 +39,15 @@ import com.example.practiceplacement.viewmodels.LoginViewModel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.practiceplacement.ui.components.Message
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
+    BackHandler(enabled = true) { }
     val loginResult = viewModel.loginResult
     var studentId by remember { mutableStateOf("") }
     val context = LocalContext.current

@@ -28,7 +28,8 @@ import com.example.practiceplacement.R
 
 @Composable
 fun SettingsMenu(
-    navController: NavController
+    navController: NavController,
+    onExit: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val iconSize = 36.dp
@@ -66,6 +67,7 @@ fun SettingsMenu(
                 text = { Text("Выход") },
                 onClick = {
                     menuExpanded = false
+                    onExit()
                     val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
                     sharedPrefs.edit()
                         .putBoolean("isLogin", false)

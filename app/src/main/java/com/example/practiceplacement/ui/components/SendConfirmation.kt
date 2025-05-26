@@ -30,8 +30,6 @@ import com.example.practiceplacement.R
 @Composable
 fun SendConfirmation(
     onClose: () -> Unit,
-    textButton: String = "Подтвердить",
-    onClick: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Dialog(onDismissRequest = onClose) {
@@ -69,7 +67,6 @@ fun SendConfirmation(
                     content()
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                BlueRectangularButton(textButton) { onClick() }
             }
         }
     }

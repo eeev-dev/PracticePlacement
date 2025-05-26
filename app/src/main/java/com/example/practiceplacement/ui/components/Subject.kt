@@ -40,36 +40,37 @@ fun Subject(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier.fillMaxWidth()
     ) {
-        status?.let {
-            if (status != "Подтвержден") Status(
-                R.drawable.clock,
-                colorResource(R.color.red_warning),
-                status
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
-        ) {
-            Box(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(iconId),
-                    contentDescription = "Иконка"
+        Column(Modifier.padding(12.dp)) {
+            status?.let {
+                if (status != "Подтвержден") Status(
+                    R.drawable.clock,
+                    colorResource(R.color.red_warning),
+                    status
                 )
             }
-            Spacer(Modifier.width(12.dp))
-            Column(
-                modifier = Modifier.align(Alignment.CenterVertically).weight(4f)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                Text(
-                    text = title,
-                    fontSize = 20.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = sansFont
-                )
-                Spacer(Modifier.height(12.dp))
-                BlueCircularButton(details) { }
+                Box(modifier = Modifier.align(Alignment.CenterVertically).weight(1f)) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(iconId),
+                        contentDescription = "Иконка"
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(
+                    modifier = Modifier.align(Alignment.CenterVertically).weight(4f)
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 20.sp,
+                        lineHeight = 20.sp,
+                        fontFamily = sansFont
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    BlueCircularButton(details) { }
+                }
             }
         }
     }

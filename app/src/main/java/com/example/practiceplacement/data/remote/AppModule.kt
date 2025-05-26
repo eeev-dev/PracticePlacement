@@ -1,12 +1,18 @@
 package com.example.practiceplacement.data.remote
 
+import android.content.Context
 import com.example.practiceplacement.data.remote.api.CompanyApi
 import com.example.practiceplacement.data.remote.api.InternApi
+import com.example.practiceplacement.data.remote.api.LetterApi
+import com.example.practiceplacement.data.remote.api.LoginApi
+import com.example.practiceplacement.data.remote.api.ReviewApi
+import com.example.practiceplacement.data.remote.repository.AuthRepository
 import com.example.practiceplacement.data.remote.repository.CompaniesRepository
 import com.example.practiceplacement.data.remote.repository.InternRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -41,13 +47,37 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideLoginApi(retrofit: Retrofit): LoginApi {
+        return retrofit.create(LoginApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLetterApi(retrofit: Retrofit): LetterApi {
+        return retrofit.create(LetterApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReviewApi(retrofit: Retrofit): ReviewApi {
+        return retrofit.create(ReviewApi::class.java)
+    }
+
+    @Provides
+    @Singleton
     fun provideCompaniesRepository(api: CompanyApi): CompaniesRepository {
         return CompaniesRepository(api)
     }
 
     @Provides
     @Singleton
-    fun provideInternRepository(api: InternApi): InternRepository {
-        return InternRepository(api)
+    fun provideInternRepository(@ApplicationContext context: Context, api: InternApi): InternRepository {
+        return InternRepository(context, api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(api: LoginApi): AuthRepository {
+        return AuthRepository(api)
     }
 }

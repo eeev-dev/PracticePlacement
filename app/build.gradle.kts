@@ -44,6 +44,8 @@ android {
 val roomVersion = "2.6.1"
 
 dependencies {
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
     // Hilt
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation("com.google.dagger:hilt-android:2.48")
@@ -58,6 +60,7 @@ dependencies {
     //Retofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.okhttp)
 
     //ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)

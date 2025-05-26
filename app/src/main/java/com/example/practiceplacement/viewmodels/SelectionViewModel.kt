@@ -1,5 +1,6 @@
 package com.example.practiceplacement.viewmodels
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.practiceplacement.data.remote.ApiClient
 import com.example.practiceplacement.data.remote.ApiClient.companyApi
-import com.example.practiceplacement.data.remote.RepositoryProvider
 import com.example.practiceplacement.data.remote.api.InternResponse
 import com.example.practiceplacement.data.remote.models.Place
 import com.example.practiceplacement.data.remote.repository.CompaniesRepository
@@ -25,8 +25,36 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SelectionViewModel @Inject constructor(
-    private val repository: CompaniesRepository
+    private val companiesRepository: CompaniesRepository,
+    private val internsRepository: InternRepository
 ) : ViewModel() {
+
+    var internInfo by mutableStateOf<InternResponse?>(null)
+        private set
+
+    var message by mutableStateOf("")
+
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
+
+    var isRefreshing = mutableStateOf(false)
+
+    fun loadIntern(internId: Int) {
+        if (internId != -1) {
+            viewModelScope.launch {
+                val result = internsRepository.getIntern(internId)
+                result.onSuccess {
+                    internInfo = it
+                    println(internInfo?.status)
+                    errorMessage = null
+                }.onFailure {
+                    message = it.message.toString()
+                    errorMessage = it.message ?: "Неизвестная ошибка"
+                }
+            }
+        }
+        else message = "Пользователь не найден"
+    }
 
     private val _places = MutableStateFlow<List<Place>>(emptyList())
     val places: StateFlow<List<Place>> = _places
@@ -35,15 +63,28 @@ class SelectionViewModel @Inject constructor(
         fetchPlaces()
     }
 
-    fun refreshPlaces() {
-        _places.value = emptyList()
-        repository.clearCache()
-        fetchPlaces()
+    fun refresh(context: Context) {
+        val id = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).getInt("intern_id", -1)
+        viewModelScope.launch {
+            isRefreshing.value = true
+            clearData()
+            loadIntern(id)
+            _places.value = emptyList()
+            companiesRepository.clearCache()
+            fetchPlaces()
+            isRefreshing.value = false
+        }
+    }
+
+    fun clearData() {
+        internInfo = null
+        internsRepository.clearCache()
+        companiesRepository.clearCache()
     }
 
     private fun fetchPlaces() {
         viewModelScope.launch {
-            val result = repository.getCompanies()
+            val result = companiesRepository.getCompanies()
             if (result.isSuccess) {
                 _places.value = result.getOrNull() ?: emptyList()
             } else {

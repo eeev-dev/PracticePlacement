@@ -1,6 +1,7 @@
 package com.example.practiceplacement.ui
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -43,6 +44,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.practiceplacement.R
 import com.example.practiceplacement.ui.components.BlueCircularButton
@@ -55,14 +57,18 @@ import com.example.practiceplacement.ui.navigation.Appbar
 import com.example.practiceplacement.ui.theme.sansFont
 import com.example.practiceplacement.utils.copyToDownloads
 import com.example.practiceplacement.utils.openImage
+import com.example.practiceplacement.viewmodels.LetterViewModel
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LetterScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: LetterViewModel = hiltViewModel()
 ) {
+    val response = viewModel.result
     val context = LocalContext.current
-    Appbar(navController, "Практика") {
+    Appbar(navController, "Практика", onExit = {  }) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -80,11 +86,15 @@ fun LetterScreen(
                     Spacer(Modifier.height(12.dp))
                 }
                 item {
-                    Frame(
-                        title = "Выбрать изображение",
-                        onClick = {}
-                    ) { title, onClick ->
-                        LoadFile(title, onClick)
+                    LoadFile("Выбрать файл") { selectedFile ->
+                        viewModel.sendPlace(context, selectedFile)
+                        response?.onSuccess {
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            viewModel.refreshStatus()
+                            navController.navigate("practice_screen")
+                        }?.onFailure {
+                            Toast.makeText(context, "Ошибка: ${it.message}", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 item {

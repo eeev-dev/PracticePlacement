@@ -13,10 +13,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
-import com.example.practiceplacement.data.remote.RepositoryProvider
+import com.example.practiceplacement.data.remote.repository.InternRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LoginViewModel() : ViewModel() {
-    private val repository = RepositoryProvider.authRepository
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val repository: AuthRepository
+) : ViewModel() {
 
     var studentId by mutableStateOf("")
     private set

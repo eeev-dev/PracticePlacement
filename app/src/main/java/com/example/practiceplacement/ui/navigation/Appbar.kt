@@ -26,6 +26,7 @@ import com.example.practiceplacement.ui.theme.sansFont
 fun Appbar(
     navController: NavController,
     text: String,
+    onExit: () -> Unit,
     content: @Composable () -> Unit
 ) {
     SetStatusBarColor(Color.Black)
@@ -47,7 +48,7 @@ fun Appbar(
                 color = Color.White
             )
             Spacer(Modifier.weight(1f))
-            SettingsMenu(navController)
+            SettingsMenu(navController, onExit)
         }
         Box(Modifier.weight(1f)) { content() }
     }

@@ -6,14 +6,6 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
-data class LoginResponse(
-    val success: Boolean,
-    val id: Int?,
-    val head_teacher: String?,
-    val place: String?,
-    val message: String
-)
-
 interface LoginApi {
     data class LoginRequest(val student_id: String)
 
@@ -22,3 +14,11 @@ interface LoginApi {
         @Body request: LoginRequest
     ): Response<LoginResponse>
 }
+
+data class LoginResponse(
+    val success: Boolean,
+    val id: Int?,
+    val head_teacher: String?,
+    val place: String?,
+    val message: String
+)
